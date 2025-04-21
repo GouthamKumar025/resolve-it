@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body{
+            background-color:  #fffefe ;
+        }
+        table {
+            width: 100%; 
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: center;
+        }
+        h2 {
+            margin-top: 30px; 
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            background-color: #003f7f;
+        }
+        .add-query-container {
+            text-align: center;
+            margin-top: 9px;
+            padding-bottom:25px ;
+        }
+        /* Compact image buttons */
+        .image-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px; 
+            margin: 2px;
+        }
+        /* Modal styles */
+        #imageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000; /* Ensures modal is on top */
+        }
+        #imageModal .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .table {
+        border-width: 3px !important;
+        }
+        .table th, .table td {
+        border-width: 3px !important;
+        }
+        #modalImage {
+            max-width: 95vh;
+            max-height: 95vh; 
+            display: block;
+            margin: 0 auto;
+        }
+       
+    </style>
+    <script>
+
+        $(document).ready(function() {
+        $(".delete-btn").on("click", function() {
+        if (!confirm("Are you sure you want to delete this query?")) {
+            return;
+        }
+
+        let queryId = $(this).data("query-id");
+        let userId = $(this).data("user-id");
+        let row = $(this).closest("tr"); // Find the table row
+
+        $.ajax({
+            url: "/delete_query",
+            type: "POST",
+            data: { query_id: queryId, user_id: userId },
+            success: function(response) {
+                if (response.success) {
+                    row.fadeOut("slow", function() { $(this).remove(); }); // Remove row smoothly
+                } else {
+                    alert("Failed to delete the query. Please try again.");
+                }
+            },
+            error: function() {
+                alert("Error occurred. Please try again.");
+            }
+        });
+    });
+});
+        //Function to show the image in the modal
+        function showImage(imageData, mimeType) {
+            var modalImage = document.getElementById("modalImage");
+            var imageModal = document.getElementById("imageModal");
+
+            // Set image data as source of modal image
+            modalImage.src = "data:" + mimeType + ";base64," + imageData;
+            
+            // Display the modal
+            imageModal.style.display = "block";
+        }
+
+        // Function to close the modal
+        function closeImage() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside the modal content
+        window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+        };
+
+        // JavaScript function to confirm delete action
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this query?");
+        }
+    </script>  
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('home') }}">Resolve IT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('status') }}">Status</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('queries') }}">Queries</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact Us</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        {% if session.get('username') %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {{ session['username'] }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('profile') }}"> My Profile </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}"> Logout </a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                    Sign In
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('user_login') }}">User Login</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                                </ul> 
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <h2>Issue Status</h2>
+    <div class="table-responsive" style="display: flex; justify-content: center; margin-top: 20px;">
+        <table class="table table-bordered table-striped" style="border-collapse: collapse; width: 100%; max-width: 1100px; text-align: left; border: 1px solid #ddd;">
+        <thead class="thead-dark">
+            <tr>
+                <th>Problem Title</th>
+                <th>Location</th>
+                <th>Problem Details</th>
+                <th>Date</th>
+                <th>Prevailing Days</th>
+                <th>Scenario</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for query in queries %}
+            <tr>
+                <td>{{ query['problem_name'] }}</td>
+                <td>{{ query['Location'] }}</td>
+                <td>{{ query['issue_detail'] }}</td>
+                <td>
+                    {{ query['timestamp'] if query.get('timestamp') else 'N/A' }}
+                </td> 
+                <td>{{ query['prevailing_days'] }}</td>
+                {% if query['severity']=="Needs Manual Review !" and session.get("username") %}  
+                    <td> Will Be Updated Soon </td>
+                {% else %} 
+                    <td>{{ query['scenario'] }}</td>
+                    {% endif %} 
+                {% if query['severity']=="Needs Manual Review !" and session.get("username") %}  
+                    <td> Will Be Updated Soon </td>
+                {% else %} 
+                    <td>{{ query['severity'] }}</td>
+                    {% endif %} 
+                <td>{{ query['status'] }}</td>
+                <td>
+                    {% if query.get('images') %}
+                        {% for image in query.get('images', []) %}
+                            <button type="button" class="image-button" onclick="showImage('{{ image.data }}', '{{ image.mime_type }}')">
+                                {{ 'Image ' ~ loop.index }}
+                            </button>
+                        {% endfor %} 
+                    {% else %} 
+                        No Image
+                    {% endif %}
+                </td>
+                <!-- Modal for displaying the image -->
+                <div id="imageModal" style="display: none;">
+                    <div class="modal-content">
+                        <img id="modalImage" src="" alt="Uploaded Image">
+                        <div class="modal-actions">
+                        <button class="close-button" onclick="closeImage()">Close</button>
+                        </div>
+                    </div>
+                </div>
+                <td>
+                    <button type="button" 
+                            class="delete-btn" 
+                            data-query-id="{{ query['_id'] }}" 
+                            data-user-id="{{ user['_id'] }}" 
+                            style="color: red; border: none; background: none; cursor: pointer;">
+                        🗑 Delete
+                    </button>
+                </td>                
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+    <div class="add-query-container">
+        <a href="/queries">
+            <button>➕ Add Query</button>
+        </a>
+    </div>
+</body>
+</html>
+

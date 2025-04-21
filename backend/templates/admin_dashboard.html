@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_style.css') }}">
+    <script src="{{ url_for('static', filename='js/admin_script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <title>Admin Dashboard</title>
+
+</head> 
+<body> 
+    <!-- Navbar Section --> 
+    <header> 
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('home') }}">Resolve IT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        {% if session.get('admin_username') %}
+                            <!-- User is logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="{{ url_for('home') }}" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {{ session['admin_username'] }} 
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}"> Logout </a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <!-- User is not logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                    Sign In
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('user_login') }}">User Login</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header> 
+
+    {% if option == 'show_database' %} 
+    <h3 class="center">Users Database</h3> 
+
+  <!-- ✅ Options to Show Database or Problems -->
+  <div class="options-container">
+    <a href="{{ url_for('admin_dashboard', option='show_database') }}" class="option-box">Show Database</a>
+    <a href="{{ url_for('admin_dashboard', option='show_problems') }}" class="option-box">Show Problems</a>
+    <a href="{{ url_for('admin_dashboard', option='show_analytics') }}" class="option-box">Show Analytics</a>
+    <a href="{{ url_for('admin_dashboard', option='show_Heatmap') }}" class="option-box">Show Heatmap</a>
+</div> <!-- ✅ Correctly closed the div -->
+
+<!-- ✅ Search & Sort Container -->
+<div class="container">
+    <div class="row align-items-center">
+        <!-- Sort Dropdown on Left -->
+        <div class="col-md-6 col-sm-12">
+            <select id="sortBy" class="form-select">
+                <option value="" selected>Sort By</option>
+                <option value="4">Date (Newest to Oldest)</option>
+                <option value="0">Username (A-Z)</option>
+                <option value="6">Severity (High to Low)</option>
+                <option value="8">Status (Done → Pending)</option>
+            </select>
+        </div>
+
+        <!-- Search Box on Right -->
+        <div class="col-md-6 col-sm-12 text-md-end mt-2 mt-md-0">
+            <input type="text" class="form-control w-100 w-md-50" id="searchBox" placeholder="Search...">
+        </div>
+    </div>
+</div>
+
+    <div class="table-responsive">
+        <table id="usersTable">
+            <thead class="thead-dark">
+                <tr> 
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Address</th>
+                    <th>District</th>
+                    <th>State</th>
+                    <th>Country</th>
+                    <th>Gender</th>
+                </tr>
+            </thead >
+            <tbody>
+                {% for user in users %} 
+                <tr>
+                    <td>{{ user['username'] }}</td>
+                    <td>{{ user['email'] }}</td>
+                    <td>{{ user['mobile'] }}</td>
+                    <td>{{ user['address'] }}</td>
+                    <td>{{ user['district'] }}</td>
+                    <td>{{ user['state'] }}</td>
+                    <td>{{ user['country'] }}</td> 
+                    <td>{{ user['gender'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table> 
+    </div>
+
+    {% elif option == 'show_problems' %}
+    <h3 class="center">All Queries</h3>
+    
+    <!-- ✅ Options to Show Database or Problems -->
+    <div class="options-container">
+        <a href="{{ url_for('admin_dashboard', option='show_database') }}" class="option-box">Show Database</a>
+        <a href="{{ url_for('admin_dashboard', option='show_problems') }}" class="option-box">Show Problems</a>
+        <a href="{{ url_for('admin_dashboard', option='show_analytics') }}" class="option-box">Show Analytics</a>
+        <a href="{{ url_for('admin_dashboard', option='show_Heatmap') }}" class="option-box">Show Heatmap</a>
+    </div> <!-- ✅ Correctly closed the div -->
+    
+    <!-- ✅ Search & Sort Container -->
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Sort Dropdown on Left -->
+            <div class="col-md-6 col-sm-12">
+                <select id="sortBy" class="form-select">
+                    <option value="" selected>Sort By</option>
+                    <option value="4">Date (Newest to Oldest)</option>
+                    <option value="0">Username (A-Z)</option>
+                    <option value="6">Severity (High to Low)</option>
+                    <option value="8">Status (Done → Pending)</option>
+                </select>
+            </div>
+    
+            <!-- Search Box on Right -->
+            <div class="col-md-6 col-sm-12 text-md-end mt-2 mt-md-0">
+                <input type="text" class="form-control w-100 w-md-50" id="searchBox" placeholder="Search...">
+            </div>
+        </div>
+    </div>
+    
+  <!-- ✅ Table Wrapper -->
+<div class="table-responsive">
+    <table id="problemsTable">
+        <thead class="thead-dark"> 
+            <tr>
+                <th>Username</th>
+                <th>Address</th>
+                <th>Prevailing Days</th>
+                <th>Date</th>
+                <th>Details</th>
+                <th>Scenario</th> <!-- Added Scenario Column -->
+                <th>Severity</th>
+                <th>Images</th>
+                <th>Status</th>
+                <th>Delete</th> 
+            </tr>
+        </thead>
+        <tbody>
+            {% for query in queries %}
+            <tr>
+                <td>{{ query['username'] }}</td>
+                <td>{{ query['Location'] }}</td>
+                <td>{{ query['prevailing_days'] }}</td> 
+                <td>
+                    
+                    {{ query['timestamp'].strftime('%d-%b-%Y') if query.get('timestamp') else 'N/A' }}
+                </td> 
+                <td class="details-column">
+                    <strong>🔹 {{ query['problem_name'] }}</strong><br>
+                    {{ query['issue_detail'] }}
+                </td>
+        
+                <!-- ✅ Scenario Column with Dynamic Dropdown -->
+                <td class="scenario-column" data-query-id="{{ query['_id'] }}">
+                    {% if query.get('scenario') == 'Needs Manual Review !' %}
+                        <span id="scenario-{{ query['_id'] }}" class="status-text">
+                            <i class="fas fa-exclamation-triangle text-warning"></i> 
+                            {{ '⚠ Needs Manual Review' }}
+                        </span>
+                        <select class="scenario-dropdown" data-query-id="{{ query['_id'] }}" data-user-id="{{ query['user_id'] }}">
+                            <option value="Longitudinal Crack">Longitudinal Crack</option>
+                            <option value="Transverse Crack">Transverse Crack</option>
+                            <option value="Alligator Crack">Alligator Crack</option>
+                            <option value="Potholes">Potholes</option>
+                        </select>
+                        <button class="update-scenario-btn" onclick="updateScenario(this)">Update</button>
+                    {% else %}
+                        <span id="scenario-{{ query['_id'] }}">
+                            {{ query.get('scenario', 'None') }}
+                        </span>
+                    {% endif %}
+                </td>
+        
+                <!-- ✅ Severity Column (Existing Functionality) -->
+                <td class="severity-column" data-query-id="{{ query['_id'] }}">
+                    {% if query.get('severity') == 'Needs Manual Review !' %}
+                        <span id="severity-{{ query['_id'] }}" class="status-text">
+                            <i class="fas fa-exclamation-triangle text-warning"></i> 
+                            {{ '⚠ Needs Manual Review' }}
+                        </span>
+                        <select class="severity-dropdown" data-query-id="{{ query['_id'] }}" data-user-id="{{ query['user_id'] }}">
+                            <option value="Low Severity">Low</option>
+                            <option value="Medium Severity">Medium</option>
+                            <option value="High Severity">High</option>
+                        </select>
+                        <button class="update-severity-btn" onclick="updateSeverity(this)">Update</button>
+                    {% else %}
+                        <span id="severity-{{ query['_id'] }}">
+                            {{ query.get('severity', 'None') }}
+                        </span>
+                    {% endif %}
+                </td>
+                
+                <td> 
+                    {% if query.get('images') %}
+                        {% for image in query.get('images', []) %}
+                            <button type="button" class="image-button" 
+                                    onclick="showImage('{{ image.data }}', '{{ image.mime_type }}')">
+                                {{ 'Image ' ~ loop.index }} 
+                            </button>
+                        {% endfor %}
+                    {% else %} 
+                        No Image 
+                    {% endif %}
+                    
+                    {% if query.get('processed_image') and query.get('severity') != 'Needs Manual Review !' %}
+                        {% for image in query.get('processed_image', []) %}
+                            <button type="button" class="image-button" 
+                                    onclick="showImage('{{ image.data }}', '{{ image.mime_type }}')">
+                                {{ 'Processed Image ' ~ loop.index }}
+                            </button> 
+                        {% endfor %}
+                    {% endif %} 
+                </td> 
+        
+                <td>
+                    <span id="status-{{ query['_id'] }}" class="status-text">
+                        {{ query.get('status', 'Error Getting Status, Reload Page') }}
+                    </span>
+                
+                    <select class="status-dropdown" data-query-id="{{ query['_id'] }}" data-user-id="{{ query['user_id'] }}">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
+                
+                    <button class="update-status-btn" onclick="updateStatus(this)">Update</button>
+                </td>
+                                            
+                <td>
+                    <button type="button" 
+                            class="delete-btn" 
+                            data-query-id="{{ query['_id'] }}" 
+                            data-user-id="{{ query['user_id'] }}" 
+                            style="color: red; border: none; background: none; cursor: pointer;">
+                        🗑 Delete
+                    </button>
+                </td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+    </div>
+
+<script>
+
+    $(document).ready(function() {
+    $(".delete-btn").on("click", function() {
+    if (!confirm("Are you sure you want to delete this query?")) {
+        return;
+    }
+
+    let queryId = $(this).data("query-id");
+    let userId = $(this).data("user-id");
+    let row = $(this).closest("tr"); // Find the table row
+
+    $.ajax({
+        url: "/delete_query",
+        type: "POST",
+        data: { query_id: queryId, user_id: userId },
+        success: function(response) {
+            if (response.success) {
+                row.fadeOut("slow", function() { $(this).remove(); }); // Remove row smoothly
+            } else {
+                alert("Failed to delete the query. Please try again.");
+            } 
+        },
+        error: function() {
+            alert("Error occurred. Please try again.");
+        }
+    });
+});
+});
+</script>
+
+<!-- Modal for displaying the image -->
+<div id="imageModal" style="display: none;">
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Uploaded Image" onclick="zoomImage()" style="cursor: zoom-in;">
+        <div class="modal-actions">
+            <a id="downloadImage" href="" download="image.jpg"> 
+                <button type="button">Download</button> 
+            </a> 
+            <button onclick="closeImage()">Close</button>
+        </div>
+    </div>
+</div> 
+
+{% elif option == 'show_analytics' %} 
+<style>
+.card {
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 10px; /* Reduced card padding */
+        text-align: center;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: 350px !important;
+        max-height: 400px;
+    }
+
+    /* 🎨 Tab Navigation */
+    .nav-tabs .nav-link {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    #avgQueries {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 250px;
+        padding-top: 120px;
+    }
+    #resolutionTime{
+        padding-top: -200px;
+        margin-top: -200px;
+    }
+    #issueStatus{
+        padding-top: 40px;
+        width: 30%;
+    }
+    #scenarioStatus{
+        padding-top: 30px;
+    }
+    /* ✅ Center Elements */
+    .container {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+    
+    </style>
+    
+    <!-- 🌟 Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4 justify-content-center">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#userStats">👥 User Stats</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#issueStatus">📌 Issues</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scenarioStatus">📊 Problem Types</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#severityStatus">⏳ Problem Severity</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#severityTrend">⏳ Problem Severity</a></li>
+    </ul>
+    
+    <!-- 🌟 Tab Content -->
+    <div class="tab-content container">
+        <div class="tab-pane fade show active" id="userStats">
+            <div class="card card2">
+                <h5>📊 Avg Queries/User</h5>
+                <h3 class="text-primary">{{ avg_queries_per_user }}</h3>
+            </div>
+            <div class="card">
+                <h5>👥 User Statistics</h5>
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+    
+        <div class="tab-pane fade" id="issueStatus">
+            <div class="card">
+                <h5>📌 Issue Status</h5>
+                <canvas id="queryChart"></canvas>
+            </div>
+        </div>
+    
+        <div class="tab-pane fade" id="scenarioStatus">
+            <div class="card card2">
+                <h5>Scenario Statistics</h5>
+                <canvas id="scenarioChart"></canvas>
+            </div>
+        </div> 
+
+        <div class="tab-pane fade" id="severityStatus">
+            <div class="card">
+                <h5>Severity Statistics</h5>
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="severityTrend">
+            <div class="card">
+                <h5>⏳ Average Resolution Time by Severity</h5>
+                <canvas id="severityResolutionTimeChart"></canvas>
+            </div>
+        </div> 
+    </div>
+    
+    <!-- 📌 Scripts -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Dummy data for testing
+        var avg_resolution_times_by_severity = {
+            "High Severity": 3,   // 10 days
+            "Medium Severity": 5,  // 5 days
+            "Low Severity": 10      // 2 days
+        };
+
+        // Initialize Chart 
+        new Chart(document.getElementById('severityResolutionTimeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['High Severity', 'Medium Severity', 'Low Severity'],
+                datasets: [{
+                    label: 'Avg Resolution Time (days)',
+                    data: [
+                        avg_resolution_times_by_severity['High Severity'],
+                        avg_resolution_times_by_severity['Medium Severity'],
+                        avg_resolution_times_by_severity['Low Severity']
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',  
+                        'rgba(255, 206, 86, 0.7)',   
+                        'rgba(75, 192, 192, 0.7)'    
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Average Resolution Time (days)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+
+    
+    <script>
+    // 📊 Charts
+    var userCounts = JSON.parse('{{ user_counts | tojson | safe }}') || {};
+    var statusCounts = JSON.parse('{{ status_counts | tojson | safe }}') || {};
+    var scenarioData = JSON.parse('{{ scenario_counts | tojson | safe}}') || {};
+    var severityData = JSON.parse('{{ severity_counts | tojson | safe }}') || {}; 
+    
+    new Chart(document.getElementById('userChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(userCounts),
+            datasets: [{ label: 'Queries per User', data: Object.values(userCounts), backgroundColor: 'rgba(54, 162, 235, 0.7)' }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+    
+    new Chart(document.getElementById('queryChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#ffcc00', '#007bff', '#28a745', '#28a453'] }]
+        },
+        options: { responsive: true }
+    });
+
+    new Chart(document.getElementById('scenarioChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(scenarioData),
+            datasets: [{ data: Object.values(scenarioData), backgroundColor: ['#ffcc00', '#007bff', '#28a745', '#FF0000', '#9575CD'] }]
+        },
+        options: { responsive: true }
+    }); 
+    
+    new Chart(document.getElementById('severityChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(severityData),
+        datasets: [{
+            label: 'Severity of Each Problem',
+            data: Object.values(severityData),
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.7)',  
+                'rgba(255, 206, 86, 0.7)', 
+                'rgba(255, 99, 132, 0.7)',  
+                'rgba(153, 102, 255, 0.7)' 
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+    </script>
+{% elif option == 'show_Heatmap' %} 
+
+<style>
+    /* ✅ Center Map & Adjust Width */
+    .map-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding-top: 20px; /* ✅ Reduced Padding */
+    }
+
+    #map {
+        width: 80%;
+        max-width: 900px;
+        height: 500px;
+        border-radius: 15px;
+        border: 2px solid #ccc;
+        box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
+    } 
+</style>
+
+<!-- ✅ Heatmap Container -->
+<div class="map-container">
+    <h3 class="text-center">📍 Problem Density Map</h3>
+    <div id="map"></div>
+</div>
+
+<!-- 📌 Scripts -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var heatmapData = JSON.parse('{{ heatmap_data | tojson | safe }}');
+
+    if (!Array.isArray(heatmapData) || heatmapData.length === 0) {
+        alert("No location data available for heatmap.");
+        return;  // ✅ Stop execution
+    }
+
+    // ✅ Initialize the Map (Centered on India)
+    var map = L.map('map').setView([20.5937, 78.9629], 5);
+
+    // ✅ Add Tile Layer (Map Background)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ✅ Create Bounds to Fit All Problem Locations
+    var bounds = L.latLngBounds();
+
+    heatmapData.forEach(function (point) {
+        var problemCount = point.count || 1;
+
+        var marker = L.circle([point.lat, point.lon], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.6,
+            radius: 1000 * problemCount
+        }).addTo(map);
+
+        // ✅ Extend Bounds for Auto Zoom
+        bounds.extend(marker.getLatLng());
+    });
+
+    // ✅ Adjust View to Fit All Markers
+    map.fitBounds(bounds, { padding: [50, 50] });
+
+    // 🔥 Fix: Force Leaflet to Recalculate Map Size
+    setTimeout(function () { 
+        map.invalidateSize();
+    }, 500);
+});
+</script>
+
+{% endif %}
+
+
+<!-- Footer Section -->
+<footer id="contact">
+    <div class="container">
+        <p class="mb-1">📞 +91 90258 61380 | ✉️ support@example.com</p>
+        <p class="mb-1">© 2024 | Best viewed: 1440 × 900 | Last Updated: <span id="lastUpdated"></span></p>
+    </div>
+</footer>
+
+<script>
+    // Set last updated date dynamically
+    document.getElementById("lastUpdated").textContent = new Date().toLocaleDateString();
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        
+        /* Center the form */
+        .register-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            background-color:  #fffefe;
+        }
+
+        .register-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        .form-label{
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: rgb(220, 18, 18);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        #get-email-otp-btn:hover {
+            box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+    <script>
+
+    // Automatically hide error messages after 3 seconds
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach((error) => {
+            if (error.textContent.trim() !== "") {
+                error.style.display = 'block'; // Show the error message
+                setTimeout(() => {
+                    error.style.display = 'none'; // Hide after 3 seconds
+                }, 3000);
+            }
+        });
+    });
+
+    function getEmailOtp() {
+    const email = document.getElementById('email').value;
+
+    axios.post('/register', 
+        {
+            action: 'send_emailotp',
+            email: email
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json' // Explicitly set the header
+            }
+        }
+    )
+    .then(response => {
+        if (response.data.success) {
+            alert(response.data.message);
+        } else {
+            alert(response.data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending OTP:', error);
+        alert('An error occurred while sending OTP.');
+    });
+} 
+</script>
+
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('home') }}">Resolve IT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('status') }}">Status</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('queries') }}">Queries</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact Us</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        {% if session.get('username') %}
+                            <!-- User is logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {{ session['username'] }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('profile') }}"> My Profile </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}"> Logout </a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <!-- User is not logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                    Sign In
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('user_login') }}">User Login</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Register Form Section -->
+    <div class="register-container">
+        <form method="POST" action="{{ url_for('register') }}" autocomplete="on" class="register-form">
+            <h2 class="text-center">Register</h2>
+            <div class="row mb-3"> 
+                <div class="col-md-6"> 
+                    <label for="username" class="form-label">Username <span style="color: red;">*</span></label>
+                    <input type="text" id="username" name="username" class="form-control" pattern="^[A-Za-z0-9]+$" title="Username can only contain letters and number" required>
+                    {% if error_username %} 
+                    <div id="error-username" class="error-message">{{ error_username }}</div>
+                    {% endif %} 
+                </div>
+                <!-- Password Field with Eye Icon -->
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password:</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', 'eyeIcon1')">
+                            <span id="eyeIcon1">👁</span>
+                        </button>
+                    </div>
+                </div>
+
+                <script>
+                    function togglePassword(fieldId, eyeIconId) {
+                    let passwordField = document.getElementById(fieldId);
+                    let eyeIcon = document.getElementById(eyeIconId);
+                    if (passwordField.type === "password") { 
+                        passwordField.type = "text";
+                        eyeIcon.textContent = "👁‍🗨";
+                    } else {
+                        passwordField.type = "password";
+                        eyeIcon.textContent = "👁";
+                    }
+                }
+                </script>
+            </div> 
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email <span style="color: red;">*</span></label>
+                    <div class="input-group">
+                        <input type="email" id="email" name="email" class="form-control" 
+                               pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$" 
+                               title="Email valid email address." required>
+                        <button type="button" id="get-mobile-otp-btn" class="btn btn-secondary" onclick="getEmailOtp()">Get OTP</button>
+                    </div>
+                    {% if error_email %}
+                    <div id="error-email" class="error-message">{{ error_email }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="otp-email" class="form-label">Enter email OTP <span style="color: red;">*</span> </label>
+                    <input type="text" id="emailotp" name="emailotp" class="form-control" pattern="^\d{6}$" required>
+                    {% if error_emailotp %}
+                    <div id="error-emailotp" class="error-message">{{ error_emailotp }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Address <span style="color: red;">*</span></label>
+                    <input type="text" id="address" name="address" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="district" class="form-label">District <span style="color: red;">*</span></label> 
+                    <input type="text" id="district" name="district" class="form-control" pattern="^[A-Za-z]+$" title="Enter a valid district" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="state" class="form-label">State <span style="color: red;">*</span></label>
+                    <input type="text" id="state" name="state" class="form-control" pattern="^[A-Za-z]+$" title="Enter a valid State" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="country" class="form-label">Country <span style="color: red;">*</span></label>
+                    <input type="text" id="country" name="country" class="form-control" pattern="^[A-Za-z]+$" title="Enter a valid State" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="gender" class="form-label">Gender <span style="color: red;">*</span></label>
+                    <select id="gender" name="gender" class="form-select" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Transgender">Transgender</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                        <label for="mobile" class="form-label">Mobile <span style="color: red;">*</span></label>
+                        <input type="text" id="mobile" name="mobile" class="form-control" pattern="^\d{10}$" title="Enter a valid 10 digit mobile number" required>
+                        {% if error_mobile %}
+                        <div id="mobile" class="error-message">{{ error_mobile }}</div>
+                        {% endif %} 
+                </div> 
+            </div>
+            <button type="submit" id="register-btn" class="btn btn-primary w-100" name="register_action" value="verify_register">Register</button>
+            <p class="mt-3 text-center">Already have an account? <a href="{{ url_for('user_login') }}">Login here</a>.</p>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+ 

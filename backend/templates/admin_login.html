@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body{
+            background-color:  #fffefe;
+        }
+        .error-box {
+            color: red;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            height: 70vh;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('home') }}">Resolve IT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('status') }}">Status</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('queries') }}">Queries</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact Us</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        {% if session.get('admin_username') %}
+                            <!-- User is logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {{ session['admin_username'] }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('profile') }}"> My Profile </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}"> Logout </a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <!-- User is not logged in -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                    Sign In
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('user_login') }}">User Login</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container content">
+        <h2 class="text-center">Admin Login</h2>
+
+        <!-- Error Message: Centered between title and form -->
+        {% if error_admin %}
+            <div class="error-box">{{ error_admin }}</div>
+        {% endif %}
+
+        <!-- Admin Login Form -->
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Admin Username:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+
+           <!-- Password Field with Eye Icon -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', 'eyeIcon1')">
+                        <span id="eyeIcon1">👁</span>
+                    </button>
+                </div>
+            </div>
+
+            <script>
+                function togglePassword(fieldId, eyeIconId) {
+                let passwordField = document.getElementById(fieldId);
+                let eyeIcon = document.getElementById(eyeIconId);
+                if (passwordField.type === "password") { 
+                    passwordField.type = "text";
+                    eyeIcon.textContent = "👁‍🗨";
+                } else {
+                    passwordField.type = "password";
+                    eyeIcon.textContent = "👁";
+                }
+            }
+            </script>
+
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
