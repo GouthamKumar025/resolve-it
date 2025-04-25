@@ -1,7 +1,4 @@
 
-![Logo](assets/logo2.jpeg)
-
-
 ## RESOLVE IT - AI Integrated Application for Urban Governance
 
 Resolve IT is an AI-Integrated Web application designed to help citizens report and resolve locality-based issues such as potholes, streetlight failures, and sanitation problems. The platform enables users to submit complaints, which are then processed using an NLP model (DistilBERT) to categorize and route them efficiently. Additionally, it integrates a YOLO-based road damage detection system that allows users to upload images of damaged roads, which are analyzed for automated issue classification.
