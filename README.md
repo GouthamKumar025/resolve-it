@@ -77,8 +77,7 @@ python app.py
     
 ## Screenshots
 
-Homepage
-![Homepage](assets/Homepage.jpg)
+
 
 
 
