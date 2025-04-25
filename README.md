@@ -1,5 +1,5 @@
 
-![Logo](assets/logo1.jpeg)
+![Logo](assets/logo2.jpeg)
 
 
 ## RESOLVE IT - AI Integrated Application for Urban Governance
