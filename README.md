@@ -74,14 +74,6 @@ Start the server
 python app.py
 ```
 
-    
-## Screenshots
-
-
-
-
-
-
 ## Authors
 
 - [Goutham Kumar S](https://github.com/GouthamKumar025)
