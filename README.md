@@ -81,4 +81,8 @@ python app.py
 - [Dhanushram S](https://github.com/dhanushram27)
 
 UI
+![Screenshot (63)](https://github.com/user-attachments/assets/bc96df1f-e628-4d
+![Screenshot (64)](https://github.com/user-attachments/assets/db751bab-574d-4c76-9d50-1ee69bb6ad4c)
+bf-98a6-c31adfd08e7c)
 
+![Screenshot (65)](https://github.com/user-attachments/assets/5d1d051d-7d58-4a3d-8796-1273e903cab8)
